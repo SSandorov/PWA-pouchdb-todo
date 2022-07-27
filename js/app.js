@@ -10,6 +10,12 @@
   
     const db = new PouchDB('todos');
     const remoteCouch = false;
+
+    // Update the UI
+    db.changes({
+      since: 'now',
+      live: true
+    }).on('change', showTodos);
   
     // We have to create a new todo document and enter it in the database
     function addTodo(text) {
@@ -19,6 +25,12 @@
         completed: false
       };
 
+      // db.put(todo, function callback(err, result) {
+      //   if (!err) {
+      //     console.log('Successfully posted a todo!');
+      //   }
+      // });
+      // lo reesecribimos con promesas
       db.put(todo)
         .then(console.log('Insertado'))
         .catch(console.log);
@@ -26,6 +38,14 @@
   
     // Show the current list of todos by reading them from the database
     function showTodos() {
+      // db.allDocs({include_docs: true, descending: true}, function(err, doc) {
+      //   redrawTodosUI(doc.rows);
+      // });
+      // lo reesecribimos con promesas
+      db.allDocs({include_docs: true, descending: true})
+        .then(doc => {
+          redrawTodosUI(doc.rows);
+        });
     }
   
     function checkboxChanged(todo, event) {
